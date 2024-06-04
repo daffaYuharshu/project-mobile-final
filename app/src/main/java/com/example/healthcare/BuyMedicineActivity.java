@@ -84,12 +84,7 @@ public class BuyMedicineActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.buttonBMBack);
         btnGoToCart = findViewById(R.id.buttonBMGoToCart);
 
-        btnGoToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(BuyMedicineActivity.this,CartBuyMedicineActivity.class));
-            }
-        });
+
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +117,16 @@ public class BuyMedicineActivity extends AppCompatActivity {
                 it.putExtra("text1",packages[i][0]);
                 it.putExtra("text2",package_details[i]);
                 it.putExtra("text3",packages[i][4]);
+                startActivity(it);
+            }
+        });
+
+        btnGoToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String otype = "medicine";
+                Intent it = new Intent(BuyMedicineActivity.this, CartBuyMedicineActivity.class);
+                it.putExtra("otype", otype);
                 startActivity(it);
             }
         });

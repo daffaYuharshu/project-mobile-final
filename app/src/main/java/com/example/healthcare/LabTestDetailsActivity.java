@@ -120,7 +120,9 @@ public class LabTestDetailsActivity extends AppCompatActivity {
         cartRef.setValue(new CartItem(email, username, product, price, otype));
 
         Toast.makeText(LabTestDetailsActivity.this, "Item added to cart", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(LabTestDetailsActivity.this, CartLabActivity.class));
+        Intent it = new Intent(LabTestDetailsActivity.this, CartLabActivity.class);
+        it.putExtra("otype", otype);
+        startActivity(it);
     }
 
     // Define a model class for Cart Item

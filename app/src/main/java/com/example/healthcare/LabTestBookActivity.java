@@ -35,6 +35,7 @@ public class LabTestBookActivity extends AppCompatActivity {
         String date = intent.getStringExtra("date");
         String time = intent.getStringExtra("time");
         String userId = intent.getStringExtra("userId"); // Get the userId from intent
+        String otype = intent.getStringExtra("otype");
 
         btnBooking.setOnClickListener(v -> {
             SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
@@ -58,18 +59,19 @@ public class LabTestBookActivity extends AppCompatActivity {
             );
 
             // Di dalam btnBooking.setOnClickListener di LabTestBookActivity
-            db.addOrder(username, order, new Database.DatabaseCallback() {
+            db.addOrder(userId, order, new Database.DatabaseCallback() {
                 @Override
                 public void onSuccess() {
                     Log.d(TAG, "Order placed successfully. Attempting to clear cart.");
-                    db.clearCart(userId, new Database.DatabaseCallback() {
+                    db.clearCart(userId, otype,new Database.DatabaseCallback() {
                         @Override
                         public void onSuccess() {
                             Log.d(TAG, "Cart cleared successfully.");
                             Toast.makeText(getApplicationContext(), "Pemesanan berhasil!", Toast.LENGTH_LONG).show();
                             Intent orderIntent = new Intent(LabTestBookActivity.this, OrderDetailsActivity.class);
                             orderIntent.putExtra("orderDetail", order);
-                            orderIntent.putExtra("username", username); // Add username to intent
+                            orderIntent.putExtra("username", username);
+                            orderIntent.putExtra("userId", userId);// Add username to intent
                             startActivity(orderIntent);
                             finish(); // Finish current activity after successful checkout
                         }

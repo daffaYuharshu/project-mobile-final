@@ -10,10 +10,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class HomeActivity extends AppCompatActivity {
 
     private TextView usernameView, userNameTextView;
-
+    private FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +30,16 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String username = intent.getStringExtra("username");
 
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            startActivity(new Intent(HomeActivity.this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        // Get the logged-in user's ID
+        String userId = currentUser.getUid();
         // Mengambil SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
 
@@ -76,7 +89,9 @@ public class HomeActivity extends AppCompatActivity {
 
         // Menambahkan listener untuk CardView Order Details
         findViewById(R.id.cardOrderDetails).setOnClickListener(v -> {
-            startActivity(new Intent(HomeActivity.this, OrderDetailsActivity.class));
+            Intent it = new Intent(HomeActivity.this, OrderDetailsActivity.class);
+            it.putExtra("userId", userId);
+            startActivity(it);
         });
 
         // Menambahkan listener untuk CardView Buy Medicine
