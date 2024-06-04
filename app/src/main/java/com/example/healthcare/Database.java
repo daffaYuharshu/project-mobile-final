@@ -190,8 +190,8 @@ public class Database {
 //    }
 
     // Add order
-    public void addOrder(String username, OrderDetail order, final DatabaseCallback callback) {
-        DatabaseReference orderRef = database.child("orders").child(username).push();
+    public void addOrder(String userId, OrderDetail order, final DatabaseCallback callback) {
+        DatabaseReference orderRef = database.child("orders").child(userId).push();
         orderRef.setValue(order)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -204,42 +204,19 @@ public class Database {
 
     // Clear cart
     // Method to clear the cart
-    public void clearCart(String userId, DatabaseCallback callback) {
+    public void clearCart(String userId, String otype, DatabaseCallback callback) {
         DatabaseReference cartRef = database.child("carts").child(userId);
-        cartRef.removeValue().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.d(TAG, "Cart cleared successfully.");
-                callback.onSuccess();
-            } else {
-                callback.onFailure(task.getException());
-            }
-        });
-    }
-    public void clearObat(String userId, DatabaseCallback callback) {
-        DatabaseReference cartRef = database.child("carts").child(userId);
-        cartRef.removeValue().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.d(TAG, "Cart cleared successfully.");
-                callback.onSuccess();
-            } else {
-                callback.onFailure(task.getException());
-            }
-        });
-    }
-
-
-    // Get order details
-    public void getOrderDetails(String username, final OrderDetailsCallback callback) {
-        DatabaseReference ordersRef = database.child("orders").child(username);
-        ordersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        cartRef.orderByChild("otype").equalTo(otype).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                ArrayList<OrderDetail> orderDetails = new ArrayList<>();
-                for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
-                    OrderDetail orderDetail = orderSnapshot.getValue(OrderDetail.class);
-                    orderDetails.add(orderDetail);
+                if (snapshot.exists()) {
+                    for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+                        itemSnapshot.getRef().removeValue();
+                    }
+                    callback.onSuccess();
+                } else {
+                    callback.onFailure(new Exception("No items found with otype: " + otype));
                 }
-                callback.onOrderDataReceived(orderDetails);
             }
 
             @Override
@@ -248,33 +225,66 @@ public class Database {
             }
         });
     }
+//    public void clearObat(String userId, DatabaseCallback callback) {
+//        DatabaseReference cartRef = database.child("carts").child(userId);
+//        cartRef.removeValue().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                Log.d(TAG, "Cart cleared successfully.");
+//                callback.onSuccess();
+//            } else {
+//                callback.onFailure(task.getException());
+//            }
+//        });
+//    }
 
-    // Move cart to order and clear cart
-    public void moveCartToOrder(String userId, ArrayList<HashMap<String, String>> cartItems, DatabaseCallback callback) {
-        DatabaseReference orderRef = database.child("orders").child(userId).push();
-        orderRef.setValue(cartItems)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        clearCart(userId, new DatabaseCallback() {
-                            @Override
-                            public void onSuccess() {
-                                callback.onSuccess();
-                            }
 
-                            @Override
-                            public void onFailure(Exception e) {
-                                callback.onFailure(e);
-                            }
-                        });
-                    } else {
-                        callback.onFailure(task.getException());
-                    }
-                });
-    }
+    // Get order details
+//    public void getOrderDetails(String username, final OrderDetailsCallback callback) {
+//        DatabaseReference ordersRef = database.child("orders").child(username);
+//        ordersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot snapshot) {
+//                ArrayList<OrderDetail> orderDetails = new ArrayList<>();
+//                for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
+//                    OrderDetail orderDetail = orderSnapshot.getValue(OrderDetail.class);
+//                    orderDetails.add(orderDetail);
+//                }
+//                callback.onOrderDataReceived(orderDetails);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError error) {
+//                callback.onFailure(error.toException());
+//            }
+//        });
+//    }
+//
+//    // Move cart to order and clear cart
+//    public void moveCartToOrder(String userId, ArrayList<HashMap<String, String>> cartItems, DatabaseCallback callback) {
+//        DatabaseReference orderRef = database.child("orders").child(userId).push();
+//        orderRef.setValue(cartItems)
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        clearCart(userId, new DatabaseCallback() {
+//                            @Override
+//                            public void onSuccess() {
+//                                callback.onSuccess();
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Exception e) {
+//                                callback.onFailure(e);
+//                            }
+//                        });
+//                    } else {
+//                        callback.onFailure(task.getException());
+//                    }
+//                });
+//    }
 
     // Check if an appointment exists
-    public void checkAppointmentExists(String username, String appointmentDetails, String address, String contact, String date, String time, final DatabaseCallback callback) {
-        DatabaseReference appointmentsRef = database.child("appointments").child(username);
+    public void checkAppointmentExists(String userId, String appointmentDetails, String address, String contact, String date, String time, final DatabaseCallback callback) {
+        DatabaseReference appointmentsRef = database.child("appointments").child(userId);
         appointmentsRef.orderByChild("details").equalTo(appointmentDetails)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

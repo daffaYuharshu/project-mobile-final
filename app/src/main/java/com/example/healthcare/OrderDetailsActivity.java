@@ -27,7 +27,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private ArrayList<OrderDetail> orderList;
     private DatabaseReference ordersRef;
     private Button btnBack;
-    private String username;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,23 +44,23 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         // Get username from intent or shared preferences
         Intent intent = getIntent();
-        username = intent.getStringExtra("username");
-        if (username == null) {
+        userId = intent.getStringExtra("userId");
+        if (userId == null) {
             // Fallback to shared preferences if username is not passed in the intent
-            username = getSharedPreferences("shared_prefs", MODE_PRIVATE).getString("username", null);
+            userId = getSharedPreferences("shared_prefs", MODE_PRIVATE).getString("userId", null);
         }
 
-        if (username == null) {
-            Toast.makeText(this, "Username is required to fetch order details", Toast.LENGTH_LONG).show();
-            Log.e("OrderDetailsActivity", "Username is null, finishing activity");
+        if (userId== null) {
+            Toast.makeText(this, "UserId is required to fetch order details", Toast.LENGTH_LONG).show();
+            Log.e("OrderDetailsActivity", "UserId is null, finishing activity");
             finish();
             return;
         }
 
-        Log.d("OrderDetailsActivity", "Fetching orders for username: " + username);
+        Log.d("OrderDetailsActivity", "Fetching orders for username: " + userId);
 
         // Initialize Firebase reference
-        ordersRef = FirebaseDatabase.getInstance().getReference().child("orders").child(username);
+        ordersRef = FirebaseDatabase.getInstance().getReference().child("orders").child(userId);
 
         // Initialize order list
         orderList = new ArrayList<>();

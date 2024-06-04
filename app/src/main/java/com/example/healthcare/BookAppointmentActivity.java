@@ -17,6 +17,9 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.Calendar;
 
 public class BookAppointmentActivity extends AppCompatActivity {
@@ -26,6 +29,7 @@ public class BookAppointmentActivity extends AppCompatActivity {
     private DatePickerDialog datePickerDialog;
     private TimePickerDialog timePickerDialog;
     private Button dateButton, timeButton, btnBook, btnBack;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +71,21 @@ public class BookAppointmentActivity extends AppCompatActivity {
 
         btnBook.setOnClickListener(view -> {
             Database db = new Database();
-            SharedPreferences sharedpreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
-            String username = sharedpreferences.getString("username", "");
+            // Initialize Firebase Authentication
+            mAuth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            if (currentUser == null) {
+                startActivity(new Intent(BookAppointmentActivity.this, LoginActivity.class));
+                finish();
+                return;
+            }
 
-            db.checkAppointmentExists(username, title + " => " + fullname, address, contact, dateButton.getText().toString(), timeButton.getText().toString(), new Database.DatabaseCallback() {
+            // Get the logged-in user's ID
+            String userId = currentUser.getUid();
+//            SharedPreferences sharedpreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
+//            String username = sharedpreferences.getString("username", "");
+
+            db.checkAppointmentExists(userId, title + " => " + fullname, address, contact, dateButton.getText().toString(), timeButton.getText().toString(), new Database.DatabaseCallback() {
                 @Override
                 public void onSuccess() {
                     Toast.makeText(getApplicationContext(), "Appointment already booked", Toast.LENGTH_LONG).show();
@@ -89,11 +104,11 @@ public class BookAppointmentActivity extends AppCompatActivity {
                             feeAmount,
                             "appointment" // Assuming 'appointment' is the type
                     );
-                    db.addOrder(username, order, new Database.DatabaseCallback() {
+                    db.addOrder(userId, order, new Database.DatabaseCallback() {
                         @Override
                         public void onSuccess() {
                             Toast.makeText(getApplicationContext(), "Your appointment is done successfully", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(BookAppointmentActivity.this, OrderDetailsActivity.class).putExtra("username", username));
+                            startActivity(new Intent(BookAppointmentActivity.this, OrderDetailsActivity.class).putExtra("userId", userId));
                         }
 
                         @Override

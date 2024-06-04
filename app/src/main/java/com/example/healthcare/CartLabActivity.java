@@ -19,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -61,12 +62,15 @@ public class CartLabActivity extends AppCompatActivity {
 
         // Get the logged-in user's ID
         String userId = currentUser.getUid();
+        Intent intent = getIntent();
+        String otype = intent.getStringExtra("otype");
 
         // Get reference to the logged-in user's cart
         DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference().child("carts").child(userId);
 
         // Listen for changes in the cart data
-        cartRef.addValueEventListener(new ValueEventListener() {
+        Query query = cartRef.orderByChild("otype").equalTo(otype);
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 list = new ArrayList<>();
@@ -107,6 +111,7 @@ public class CartLabActivity extends AppCompatActivity {
                 it.putExtra("date", dateButton.getText().toString());
                 it.putExtra("time", timeButton.getText().toString());
                 it.putExtra("userId", userId); // Pass the userId to the next activity
+                it.putExtra("otype", otype);
                 startActivity(it);
             } else {
                 Toast.makeText(getApplicationContext(), "Cart is empty", Toast.LENGTH_SHORT).show();
@@ -123,7 +128,7 @@ public class CartLabActivity extends AppCompatActivity {
 
         btnDeleteCart.setOnClickListener(view -> {
             Database db = new Database();
-            db.clearCart(userId, new Database.DatabaseCallback() {
+            db.clearCart(userId, otype, new Database.DatabaseCallback() {
                 @Override
                 public void onSuccess() {
                     Toast.makeText(CartLabActivity.this, "Cart deleted successfully", Toast.LENGTH_SHORT).show();

@@ -34,6 +34,8 @@ public class BuyMedicineBookActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String priceString = intent.getStringExtra("price");
         String date = intent.getStringExtra("date");
+        String userId = intent.getStringExtra("userId");
+        String otype = intent.getStringExtra("otype");
 
         // Clean the price string before parsing
         String cleanedPriceString = priceString.replace("Total Cost: ", "").trim();
@@ -55,36 +57,80 @@ public class BuyMedicineBookActivity extends AppCompatActivity {
                 return;
             }
 
-            if (validateInput()) {
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference ordersRef = database.getReference("orders").child(username).push();
-                DatabaseReference cartRef = database.getReference("carts").child("amVmdGFh"); // Ganti "amVmdGFh" dengan ID pengguna yang ingin Anda gunakan
+            Database db = new Database();
+            OrderDetail order = new OrderDetail(
+                    edname.getText().toString(),
+                    edaddress.getText().toString(),
+                    edcontact.getText().toString(),
+                    edpincode.getText().toString(),
+                    date,
+                    "",
+                    finalPrice,
+                    "medicine"
+            );
 
-                OrderDetail orderDetail = new OrderDetail(
-                        edname.getText().toString(),
-                        edaddress.getText().toString(),
-                        edcontact.getText().toString(),
-                        edpincode.getText().toString(),
-                        date,
-                        "",  // Time can be set to an empty string if not applicable
-                        finalPrice,
-                        "medicine"  // Assuming 'medicine' is the type
-                );
+            // Di dalam btnBooking.setOnClickListener di LabTestBookActivity
+            db.addOrder(userId, order, new Database.DatabaseCallback() {
+                @Override
+                public void onSuccess() {
+                    Log.d(TAG, "Order placed successfully. Attempting to clear cart.");
+                    db.clearCart(userId, otype, new Database.DatabaseCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "Cart cleared successfully.");
+                            Toast.makeText(getApplicationContext(), "Pemesanan berhasil!", Toast.LENGTH_LONG).show();
+                            Intent orderIntent = new Intent(BuyMedicineBookActivity.this, OrderDetailsActivity.class);
+                            orderIntent.putExtra("orderDetail", order);
+                            orderIntent.putExtra("username", username);
+                            orderIntent.putExtra("userId", userId);// Add username to intent
+                            startActivity(orderIntent);
+                            finish(); // Finish current activity after successful checkout
+                        }
 
-                // Remove the entire cart for the user
-                cartRef.removeValue()
-                        .addOnSuccessListener(aVoid1 -> {
-                            Log.d(TAG, "Cart cleared successfully for user: " + username);
-                            // Proceed with order placement
-                            placeOrder(username, orderDetail);
-                        })
-                        .addOnFailureListener(e -> {
+                        @Override
+                        public void onFailure(Exception e) {
                             Log.e(TAG, "Failed to clear cart: " + e.getMessage());
-                            Toast.makeText(getApplicationContext(), "Gagal menghapus keranjang: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        });
-            } else {
-                Toast.makeText(getApplicationContext(), "Mohon isi semua detail", Toast.LENGTH_LONG).show();
-            }
+                            Toast.makeText(getApplicationContext(), "Failed to clear cart", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e(TAG, "Failed to place order: " + e.getMessage());
+                    Toast.makeText(getApplicationContext(), "Pemesanan gagal", Toast.LENGTH_LONG).show();
+                }
+            });
+//            if (validateInput()) {
+//                FirebaseDatabase database = FirebaseDatabase.getInstance();
+//                DatabaseReference ordersRef = database.getReference("orders").child(username).push();
+//                DatabaseReference cartRef = database.getReference("carts").child("amVmdGFh"); // Ganti "amVmdGFh" dengan ID pengguna yang ingin Anda gunakan
+//
+//                OrderDetail orderDetail = new OrderDetail(
+//                        edname.getText().toString(),
+//                        edaddress.getText().toString(),
+//                        edcontact.getText().toString(),
+//                        edpincode.getText().toString(),
+//                        date,
+//                        "",  // Time can be set to an empty string if not applicable
+//                        finalPrice,
+//                        "medicine"  // Assuming 'medicine' is the type
+//                );
+//
+//                // Remove the entire cart for the user
+//                cartRef.removeValue()
+//                        .addOnSuccessListener(aVoid1 -> {
+//                            Log.d(TAG, "Cart cleared successfully for user: " + username);
+//                            // Proceed with order placement
+//                            placeOrder(username, orderDetail);
+//                        })
+//                        .addOnFailureListener(e -> {
+//                            Log.e(TAG, "Failed to clear cart: " + e.getMessage());
+//                            Toast.makeText(getApplicationContext(), "Gagal menghapus keranjang: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//                        });
+//            } else {
+//                Toast.makeText(getApplicationContext(), "Mohon isi semua detail", Toast.LENGTH_LONG).show();
+//            }
         });
     }
 

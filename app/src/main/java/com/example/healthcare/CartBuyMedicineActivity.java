@@ -14,10 +14,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ public class CartBuyMedicineActivity extends AppCompatActivity {
     private DatePickerDialog datePickerDialog;
     private Button dateButton, btnCheckout, btnBack, btnDeleteCart;
     private String[][] packages = {};
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,15 +50,29 @@ public class CartBuyMedicineActivity extends AppCompatActivity {
         tvTotal = findViewById(R.id.textViewBMCartTotalCost);
         lst = findViewById(R.id.listViewBMCart);
 
-        SharedPreferences sharedpreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
-        String username = sharedpreferences.getString("username", "");
-        String encodedUsername = Utils.encodeUsername(username); // Encode the username
+        // Initialize Firebase Authentication
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            startActivity(new Intent(CartBuyMedicineActivity.this, LoginActivity.class));
+            finish();
+            return;
+        }
 
-        DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference("carts").child(encodedUsername);
+        // Get the logged-in user's ID
+        String userId = currentUser.getUid();
+        Intent intent = getIntent();
+        String otype = intent.getStringExtra("otype");
+//        SharedPreferences sharedpreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
+//        String username = sharedpreferences.getString("username", "");
+//        String encodedUsername = Utils.encodeUsername(username); // Encode the username
+
+        DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference("carts").child(userId);
 
         final float[] totalAmount = {0};
         ArrayList<CartItem> cartItems = new ArrayList<>();
-        cartRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        Query query = cartRef.orderByChild("otype").equalTo(otype);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -69,7 +87,7 @@ public class CartBuyMedicineActivity extends AppCompatActivity {
                     CartItem cartItem = cartItems.get(i);
                     packages[i][0] = cartItem.getProduct();
                     packages[i][4] = "Cost: " + cartItem.getPrice() + "/-";
-                    totalAmount[0] += Float.parseFloat(cartItem.getPrice());
+                    totalAmount[0] += Float.parseFloat(cartItem.getPrice().replaceAll("[^0-9]", "").trim());
                 }
 
                 tvTotal.setText("Total Cost: " + totalAmount[0]);
@@ -101,12 +119,14 @@ public class CartBuyMedicineActivity extends AppCompatActivity {
             Intent it = new Intent(CartBuyMedicineActivity.this, BuyMedicineBookActivity.class);
             it.putExtra("price", tvTotal.getText().toString());
             it.putExtra("date", dateButton.getText().toString());
+            it.putExtra("userId", userId);
+            it.putExtra("otype", otype);
             startActivity(it);
         });
 
         btnDeleteCart.setOnClickListener(view -> {
             Database database = new Database();
-            database.clearCart(encodedUsername, new Database.DatabaseCallback() {
+            database.clearCart(userId, otype,new Database.DatabaseCallback() {
                 @Override
                 public void onSuccess() {
                     Toast.makeText(CartBuyMedicineActivity.this, "Cart cleared successfully", Toast.LENGTH_SHORT).show();
