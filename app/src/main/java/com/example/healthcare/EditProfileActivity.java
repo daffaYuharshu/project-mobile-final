@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -16,7 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class EditProfileActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
-    private Button btnSave, btnDelete;
+    private Button btnSave, btnDelete, btnBack;
     private Database db;
     private String username;
 
@@ -104,5 +105,11 @@ public class EditProfileActivity extends AppCompatActivity {
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         });
+
+
+        findViewById(R.id.btnCancel).setOnClickListener(v -> {
+            startActivity(new Intent(EditProfileActivity.this, HomeActivity.class));
+        });
+
     }
 }

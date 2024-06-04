@@ -143,51 +143,51 @@ public class Database {
     }
 
     // Add to cart
-    public void addToCart(String username, String otype, CartItem item, final DatabaseCallback callback) {
-        DatabaseReference cartRef = database.child("cart").child(username).child(otype).push();
-        cartRef.setValue(item)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        callback.onSuccess();
-                    } else {
-                        callback.onFailure(task.getException());
-                    }
-                });
-    }
+//    public void addToCart(String username, String otype, CartItem item, final DatabaseCallback callback) {
+//        DatabaseReference cartRef = database.child("cart").child(username).child(otype).push();
+//        cartRef.setValue(item)
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        callback.onSuccess();
+//                    } else {
+//                        callback.onFailure(task.getException());
+//                    }
+//                });
+//    }
 
     // Get cart data
-    public void getCartData(String username, String otype, final CartCallback callback) {
-        DatabaseReference cartRef = database.child("cart").child(username).child(otype);
-        cartRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<CartItem> cartData = new ArrayList<>();
-                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
-                    CartItem cartItem = itemSnapshot.getValue(CartItem.class);
-                    cartData.add(cartItem);
-                }
-                callback.onCartDataReceived(cartData);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onFailure(error.toException());
-            }
-        });
-    }
+//    public void getCartData(String username, String otype, final CartCallback callback) {
+//        DatabaseReference cartRef = database.child("cart").child(username).child(otype);
+//        cartRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                ArrayList<CartItem> cartData = new ArrayList<>();
+//                for (DataSnapshot itemSnapshot : snapshot.getChildren()) {
+//                    CartItem cartItem = itemSnapshot.getValue(CartItem.class);
+//                    cartData.add(cartItem);
+//                }
+//                callback.onCartDataReceived(cartData);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                callback.onFailure(error.toException());
+//            }
+//        });
+//    }
 
     // Remove from cart
-    public void removeFromCart(String username, String otype, String itemId, final DatabaseCallback callback) {
-        DatabaseReference cartRef = database.child("cart").child(username).child(otype).child(itemId);
-        cartRef.removeValue()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        callback.onSuccess();
-                    } else {
-                        callback.onFailure(task.getException());
-                    }
-                });
-    }
+//    public void removeFromCart(String username, String otype, String itemId, final DatabaseCallback callback) {
+//        DatabaseReference cartRef = database.child("cart").child(username).child(otype).child(itemId);
+//        cartRef.removeValue()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        callback.onSuccess();
+//                    } else {
+//                        callback.onFailure(task.getException());
+//                    }
+//                });
+//    }
 
     // Add order
     public void addOrder(String username, OrderDetail order, final DatabaseCallback callback) {

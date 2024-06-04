@@ -1,4 +1,4 @@
-#Sun Jun 02 21:21:29 WIB 2024
+#Tue Jun 04 23:22:17 WIB 2024
 base.0=C\:\\Users\\jefta\\Documents\\Project_Mobile-fork\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\jefta\\Documents\\Project_Mobile-fork\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.2=C\:\\Users\\jefta\\Documents\\Project_Mobile-fork\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\14\\classes.dex
