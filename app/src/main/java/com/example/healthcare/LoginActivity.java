@@ -59,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                                 // Pass the username in the intent to HomeActivity
                                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                 intent.putExtra("username", user.getUsername());
+                                intent.putExtra("email", user.getEmail());
                                 startActivity(intent);
                             }
 

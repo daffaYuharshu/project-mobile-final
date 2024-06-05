@@ -82,7 +82,7 @@ public class Database {
     public void updateProfile(String newEmail, String newPassword, final DatabaseCallback callback) {
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
-            user.updateEmail(newEmail).addOnCompleteListener(task -> {
+            user.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     user.updatePassword(newPassword).addOnCompleteListener(task1 -> {
                         if (task1.isSuccessful()) {

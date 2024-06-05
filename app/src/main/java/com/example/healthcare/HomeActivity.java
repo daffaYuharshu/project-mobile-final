@@ -29,6 +29,7 @@ public class HomeActivity extends AppCompatActivity {
         // Mengambil username dari Intent
         Intent intent = getIntent();
         String username = intent.getStringExtra("username");
+//        String email = intent.getStringExtra("email");
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -42,6 +43,7 @@ public class HomeActivity extends AppCompatActivity {
         String userId = currentUser.getUid();
         // Mengambil SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
+        String email = sharedPreferences.getString("email", "");
 
         // Mengambil username dari SharedPreferences jika tidak ada di Intent
         if (username == null || username.isEmpty()) {
@@ -78,7 +80,7 @@ public class HomeActivity extends AppCompatActivity {
         // Menambahkan listener untuk CardView Edit Profile
         findViewById(R.id.cardEditProfile).setOnClickListener(v -> {
             Intent editIntent = new Intent(HomeActivity.this, EditProfileActivity.class);
-            editIntent.putExtra("username", finalUsername);
+            editIntent.putExtra("username", email);
             startActivity(editIntent);
         });
 

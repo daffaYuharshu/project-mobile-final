@@ -36,7 +36,8 @@
         android:layout_below="@id/tvUsernameLabel"
         android:layout_marginTop="8dp"
         android:hint="New Email"
-        android:inputType="textEmailAddress"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:background="@android:color/white"
         android:padding="10dp"/>
 

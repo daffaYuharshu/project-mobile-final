@@ -32,6 +32,8 @@ public class EditProfileActivity extends AppCompatActivity {
         btnDelete = findViewById(R.id.btnDelete);
         TextView tvUsername = findViewById(R.id.tvUsernameLabel);
 
+
+
         db = new Database();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
